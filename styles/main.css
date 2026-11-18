@@ -771,6 +771,47 @@ pre code {
   cursor: pointer;
 }
 
+.control-group.ctrl-c1 {
+  --ctrl-color: var(--accent-text);
+  --ctrl-track: var(--accent);
+  --ctrl-bg: var(--accent-soft);
+}
+
+.control-group.ctrl-c2 {
+  --ctrl-color: var(--danger);
+  --ctrl-track: var(--danger);
+  --ctrl-bg: var(--danger-soft);
+}
+
+.control-group.ctrl-opt {
+  --ctrl-color: var(--success);
+  --ctrl-track: var(--success);
+  --ctrl-bg: var(--success-soft);
+}
+
+.control-group.ctrl-purple {
+  --ctrl-color: var(--purple);
+  --ctrl-track: var(--purple);
+  --ctrl-bg: var(--purple-soft);
+}
+
+.control-group[class*="ctrl-"] label {
+  color: var(--ctrl-color);
+  font-weight: 600;
+}
+
+.control-group[class*="ctrl-"] input[type="range"] {
+  accent-color: var(--ctrl-track);
+}
+
+.control-group[class*="ctrl-"] .ctrl-val {
+  background: var(--ctrl-bg);
+  color: var(--ctrl-color);
+  padding: 0.08rem 0.36rem;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
 .viz-body {
   padding: 1.1rem 1.25rem;
 }

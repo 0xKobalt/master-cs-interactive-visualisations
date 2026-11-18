@@ -40,34 +40,34 @@
         </div>
 
         <div class="viz-controls">
-          <div class="control-group">
+          <div class="control-group ctrl-c1">
             <label for="mdl-b-prior1">Prior p(y₁):</label>
             <input id="mdl-b-prior1" type="range" min="0.10" max="0.90" step="0.01" value="0.50" />
-            <span class="mono" id="mdl-b-prior1-val">0.50</span>
+            <span class="mono ctrl-val" id="mdl-b-prior1-val">0.50</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c1">
             <label for="mdl-b-mu1">μ₁:</label>
             <input id="mdl-b-mu1" type="range" min="-1.5" max="1.5" step="0.1" value="-0.3" />
-            <span class="mono" id="mdl-b-mu1-val">-0.3</span>
+            <span class="mono ctrl-val" id="mdl-b-mu1-val">-0.3</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c2">
             <label for="mdl-b-mu2">μ₂:</label>
             <input id="mdl-b-mu2" type="range" min="1.0" max="4.0" step="0.1" value="2.8" />
-            <span class="mono" id="mdl-b-mu2-val">2.8</span>
+            <span class="mono ctrl-val" id="mdl-b-mu2-val">2.8</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c1">
             <label for="mdl-b-sig1">σ₁:</label>
             <input id="mdl-b-sig1" type="range" min="0.5" max="1.8" step="0.05" value="1.05" />
-            <span class="mono" id="mdl-b-sig1-val">1.05</span>
+            <span class="mono ctrl-val" id="mdl-b-sig1-val">1.05</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c2">
             <label for="mdl-b-sig2">σ₂:</label>
             <input id="mdl-b-sig2" type="range" min="0.5" max="1.8" step="0.05" value="1.15" />
-            <span class="mono" id="mdl-b-sig2-val">1.15</span>
+            <span class="mono ctrl-val" id="mdl-b-sig2-val">1.15</span>
           </div>
 
           <button id="mdl-b-double-p1" class="btn btn-sm" type="button">Set p(y₁) = 2·p(y₂)</button>
@@ -187,22 +187,22 @@
         </div>
 
         <div class="viz-controls">
-          <div class="control-group">
+          <div class="control-group ctrl-opt">
             <label for="mdl-e-thresh">Threshold t:</label>
             <input id="mdl-e-thresh" type="range" min="-2.0" max="5.0" step="0.02" value="0.65" />
-            <span class="mono" id="mdl-e-thresh-val">0.65</span>
+            <span class="mono ctrl-val" id="mdl-e-thresh-val">0.65</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-purple">
             <label for="mdl-e-sep">Class Separation (μ₂ − μ₁):</label>
             <input id="mdl-e-sep" type="range" min="0.8" max="4.5" step="0.1" value="2.8" />
-            <span class="mono" id="mdl-e-sep-val">2.8</span>
+            <span class="mono ctrl-val" id="mdl-e-sep-val">2.8</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c1">
             <label for="mdl-e-prior1">Prior p(y₁):</label>
             <input id="mdl-e-prior1" type="range" min="0.20" max="0.80" step="0.02" value="0.55" />
-            <span class="mono" id="mdl-e-prior1-val">0.55</span>
+            <span class="mono ctrl-val" id="mdl-e-prior1-val">0.55</span>
           </div>
 
           <button id="mdl-e-snap" class="btn btn-sm btn-primary" type="button">Snap to Bayes Optimal</button>
@@ -285,22 +285,22 @@
             </select>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c1">
             <label for="mdl-c-l12">λ₁₂ (y₁ → y₂):</label>
             <input id="mdl-c-l12" type="range" min="1" max="100" step="1" value="10" />
-            <span class="mono" id="mdl-c-l12-val">10</span>
+            <span class="mono ctrl-val" id="mdl-c-l12-val">10</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c2">
             <label for="mdl-c-l21">λ₂₁ (y₂ → y₁):</label>
             <input id="mdl-c-l21" type="range" min="1" max="100" step="1" value="100" />
-            <span class="mono" id="mdl-c-l21-val">100</span>
+            <span class="mono ctrl-val" id="mdl-c-l21-val">100</span>
           </div>
 
-          <div class="control-group">
+          <div class="control-group ctrl-c1">
             <label for="mdl-c-prior1">Prior p(y₁):</label>
             <input id="mdl-c-prior1" type="range" min="0.20" max="0.90" step="0.02" value="0.70" />
-            <span class="mono" id="mdl-c-prior1-val">0.70</span>
+            <span class="mono ctrl-val" id="mdl-c-prior1-val">0.70</span>
           </div>
         </div>
 
@@ -336,13 +336,13 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <th id="mdl-c-row1">y₁ (Healthy)</th>
+                    <th id="mdl-c-row1" class="term-c1">y₁ (Healthy)</th>
                     <td>λ₁₁ = 0</td>
-                    <td id="mdl-c-cell12">λ₁₂ = 10</td>
+                    <td id="mdl-c-cell12" class="term-c1">λ₁₂ = 10</td>
                   </tr>
                   <tr>
-                    <th id="mdl-c-row2">y₂ (Ill)</th>
-                    <td id="mdl-c-cell21">λ₂₁ = 100</td>
+                    <th id="mdl-c-row2" class="term-c2">y₂ (Ill)</th>
+                    <td id="mdl-c-cell21" class="term-c2">λ₂₁ = 100</td>
                     <td>λ₂₂ = 0</td>
                   </tr>
                 </tbody>

@@ -2,6 +2,8 @@
 
 A lightweight, zero-build multi-page website where each Master's CS course has its own dedicated page for small interactive visualizations and study notes.
 
+**Live site:** https://master-cs-interactive-visualisations.thien-an-pham.workers.dev/
+
 ## Opening the Website
 
 - **Directly in a browser (recommended):** Double-click `index.html` (or open it in Chrome, Edge, or Firefox). Everything runs as static HTML, CSS, and JavaScript with no build step or server required.

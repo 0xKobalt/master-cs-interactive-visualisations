@@ -307,16 +307,16 @@
       fCondEl.innerHTML =
         `<span style="display:flex;flex-wrap:wrap;align-items:center;gap:0.25rem;width:100%;">` +
         `<span class="term-c1"><i>p</i>(${xStr}|<i>y</i><sub>1</sub>)</span> = ` +
-        fracHtml("1", `${prm.sig1.toFixed(2)}√(2π)`) +
+        fracHtml("1", `<span class="term-c1">${prm.sig1.toFixed(2)}</span>√(2π)`) +
         `exp(−` +
-        fracHtml(`(${xStr} − ${mu1Str})<sup>2</sup>`, `2·${prm.sig1.toFixed(2)}<sup>2</sup>`) +
+        fracHtml(`(${xStr} − <span class="term-c1">${mu1Str}</span>)<sup>2</sup>`, `2·<span class="term-c1">${prm.sig1.toFixed(2)}</span><sup>2</sup>`) +
         `) = <span class="formula-result term-c1">${probe.c1.toFixed(4)}</span>` +
         `</span>` +
         `<span style="display:flex;flex-wrap:wrap;align-items:center;gap:0.25rem;width:100%;margin-top:0.2rem;">` +
         `<span class="term-c2"><i>p</i>(${xStr}|<i>y</i><sub>2</sub>)</span> = ` +
-        fracHtml("1", `${prm.sig2.toFixed(2)}√(2π)`) +
+        fracHtml("1", `<span class="term-c2">${prm.sig2.toFixed(2)}</span>√(2π)`) +
         `exp(−` +
-        fracHtml(`(${xStr} − ${mu2Str})<sup>2</sup>`, `2·${prm.sig2.toFixed(2)}<sup>2</sup>`) +
+        fracHtml(`(${xStr} − <span class="term-c2">${mu2Str}</span>)<sup>2</sup>`, `2·<span class="term-c2">${prm.sig2.toFixed(2)}</span><sup>2</sup>`) +
         `) = <span class="formula-result term-c2">${probe.c2.toFixed(4)}</span>` +
         `</span>`;
 
@@ -520,7 +520,7 @@
       excessErrEl.textContent = `+${(excess * 100).toFixed(2)}%`;
       splitEl.textContent = `${(res.err12 * 100).toFixed(1)}% / ${(res.err21 * 100).toFixed(1)}%`;
 
-      const tStr = prm.thresh.toFixed(2);
+      const tStr = `<span class="term-opt">${prm.thresh.toFixed(2)}</span>`;
       fErrEl.innerHTML =
         `<span style="display:flex;flex-wrap:wrap;align-items:center;gap:0.28rem;width:100%;">` +
         `<span><i>p</i>(error) =</span>` +
@@ -541,13 +541,13 @@
         `<span class="term-opt"><i>t</i>*</span> = ` +
         fracHtml(`${prm.mu1.toFixed(1)} + ${prm.mu2.toFixed(1)}`, "2") +
         ` + ` +
-        fracHtml(`${prm.sig.toFixed(2)}<sup>2</sup>`, `${prm.mu2.toFixed(1)} − ${prm.mu1.toFixed(1)}`) +
+        fracHtml(`${prm.sig.toFixed(2)}<sup>2</sup>`, `<span class="term-purple">${prm.mu2.toFixed(1)} − ${prm.mu1.toFixed(1)}</span>`) +
         ` ln` +
         fracHtml(`<span class="term-c1">${prm.p1.toFixed(2)}</span>`, `<span class="term-c2">${prm.p2.toFixed(2)}</span>`) +
         ` = ` +
         fracHtml(prm.mu2.toFixed(1), "2") +
         ` + ` +
-        fracHtml(sig2.toFixed(2), prm.mu2.toFixed(1)) +
+        fracHtml(sig2.toFixed(2), `<span class="term-purple">${prm.mu2.toFixed(1)}</span>`) +
         ` · (${Math.log(prm.p1 / prm.p2).toFixed(2)})` +
         ` = <span class="formula-result term-opt">${tOpt.toFixed(2)}</span>` +
         `</span>`;
