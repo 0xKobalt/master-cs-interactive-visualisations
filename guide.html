@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Course &amp; Visualization Guide — Master CS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body data-root="." data-page="guide">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">WORKFLOW &amp; ARCHITECTURE</div>
+      <h1 class="page-title">Adding Courses &amp; Interactive Visualizations</h1>
+      <p class="page-desc">
+        Everything runs as plain static HTML, CSS, and JavaScript. No bundler, no package install, and full support for opening <code>index.html</code> directly from disk.
+      </p>
+    </header>
+
+    <div class="viz-stack">
+      <section class="viz-card">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">Step 1 — Add a New Course Page</h2>
+            <p class="viz-subtitle">Takes two edits: create the HTML page and register it in the course list.</p>
+          </div>
+          <span class="badge badge-accent">2 Steps</span>
+        </div>
+        <div class="viz-body">
+          <ol style="margin-top:0; padding-left:1.25rem;">
+            <li style="margin-bottom:0.75rem;">
+              Duplicate <a href="courses/_template.html"><code>courses/_template.html</code></a> as e.g. <code>courses/cryptography.html</code> and update <code>data-page="cryptography"</code> on <code>&lt;body&gt;</code>.
+            </li>
+            <li>
+              Add a matching entry to <code>js/courses-data.js</code>. The Home Hub and sidebar update automatically on every page:
+            </li>
+          </ol>
+<pre><code>{
+  id: "cryptography",
+  code: "CS-560",
+  title: "Applied Cryptography",
+  category: "Theory",
+  color: "#e11d48",
+  page: "courses/cryptography.html",
+  description: "Modular arithmetic, Diffie-Hellman key exchange, and elliptic curve groups.",
+  topics: ["Modular Inverse", "RSA", "Diffie-Hellman"],
+  vizCount: 1
+}</code></pre>
+        </div>
+      </section>
+
+      <section class="viz-card">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">Step 2 — Drop In a Small Interactive Visualization</h2>
+            <p class="viz-subtitle">Each visualization is just a <code>.viz-card</code> block plus a short script using <code>VizKit</code> (or SVG / plain DOM).</p>
+          </div>
+          <span class="badge">Copy &amp; Paste</span>
+        </div>
+        <div class="viz-body">
+          <p style="margin-top:0;">
+            Inside any course page's <code>&lt;div class="viz-stack"&gt;</code>, paste a <code>.viz-card</code> skeleton:
+          </p>
+<pre><code>&lt;section class="viz-card" id="viz-my-topic"&gt;
+  &lt;div class="viz-header"&gt;
+    &lt;div&gt;
+      &lt;h2 class="viz-title"&gt;Modular Exponentiation (a^b mod p)&lt;/h2&gt;
+      &lt;p class="viz-subtitle"&gt;Step through square-and-multiply in binary.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;span class="badge"&gt;Number Theory&lt;/span&gt;
+  &lt;/div&gt;
+
+  &lt;div class="viz-controls"&gt;
+    &lt;button id="my-step-btn" class="btn btn-sm btn-primary"&gt;Step&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div class="viz-body"&gt;
+    &lt;div class="viz-stage"&gt;&lt;canvas id="my-canvas"&gt;&lt;/canvas&gt;&lt;/div&gt;
+    &lt;div class="viz-readout" id="my-readout"&gt;...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+
+          <p>Then use <code>VizKit</code> in your script so your canvas stays sharp on Retina/4K screens and matches light/dark mode:</p>
+<pre><code>const canvas = document.getElementById("my-canvas");
+function draw() {
+  const { ctx, width, height } = VizKit.setupCanvas(canvas, 800, 260);
+  const c = VizKit.getThemeColors();
+  ctx.fillStyle = c.bg;
+  ctx.fillRect(0, 0, width, height);
+  // Draw nodes, lines, plots, etc. using c.accent, c.text, c.success...
+}
+canvas.addEventListener("pointerdown", (e) =&gt; {
+  const pt = VizKit.getCanvasPoint(canvas, e, 800, 260);
+  // pt.x, pt.y are in logical [0..800] x [0..260] coordinates
+});
+VizKit.onThemeChange(draw);
+draw();</code></pre>
+        </div>
+      </section>
+
+      <section class="viz-card">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">VizKit Reference</h2>
+            <p class="viz-subtitle">Available globally on every course page via <code>../js/viz-kit.js</code>.</p>
+          </div>
+        </div>
+        <div class="viz-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>API</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>VizKit.setupCanvas(el, w, h)</td>
+                <td>Sets responsive aspect ratio &amp; HiDPI <code>devicePixelRatio</code> transform; returns <code>{ ctx, width, height }</code>.</td>
+              </tr>
+              <tr>
+                <td>VizKit.getCanvasPoint(el, evt, w, h)</td>
+                <td>Maps mouse/touch pointer coordinates accurately to logical <code>(w, h)</code> space.</td>
+              </tr>
+              <tr>
+                <td>VizKit.getThemeColors()</td>
+                <td>Returns active CSS theme tokens (<code>bg</code>, <code>grid</code>, <code>text</code>, <code>accent</code>, <code>success</code>, <code>warning</code>, <code>danger</code>, <code>purple</code>).</td>
+              </tr>
+              <tr>
+                <td>VizKit.onThemeChange(fn)</td>
+                <td>Calls <code>fn</code> whenever the user toggles Light/Dark mode so canvases redraw immediately.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="js/courses-data.js"></script>
+  <script src="js/layout.js"></script>
+</body>
+</html>

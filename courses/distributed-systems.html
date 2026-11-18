@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS-540: Distributed Systems — Master CS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body data-root=".." data-page="distributed-systems">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">CS-540 · SYSTEMS &amp; CONCURRENCY</div>
+      <h1 class="page-title">Distributed Systems</h1>
+      <p class="page-desc">
+        Inspect causal ordering with Lamport and Vector clocks across asynchronous processes,
+        and explore how virtual nodes stabilize load balance on a consistent hashing ring.
+      </p>
+      <div class="topic-jump-bar">
+        <a href="#viz-clocks" class="badge badge-accent">1. Lamport &amp; Vector Clocks</a>
+        <a href="#viz-ring" class="badge">2. Consistent Hashing Ring</a>
+        <a href="#course-notes" class="badge">Study Notes</a>
+      </div>
+    </header>
+
+    <div class="viz-stack">
+      <!-- Visualization 1: Logical & Vector Clocks -->
+      <section class="viz-card" id="viz-clocks">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">1. Lamport &amp; Vector Clocks (Space-Time Diagram)</h2>
+            <p class="viz-subtitle">
+              Add local events or send messages between processes. Click any two events on the timeline to check their causal relation.
+            </p>
+          </div>
+          <span class="badge">Logical Time</span>
+        </div>
+
+        <div class="viz-controls">
+          <button class="btn btn-sm clk-local-btn" data-p="0" type="button">+ Local P1</button>
+          <button class="btn btn-sm clk-local-btn" data-p="1" type="button">+ Local P2</button>
+          <button class="btn btn-sm clk-local-btn" data-p="2" type="button">+ Local P3</button>
+
+          <span style="width:1px;height:20px;background:var(--border-strong);margin:0 0.2rem;"></span>
+
+          <div class="control-group">
+            <label for="clk-from">Send:</label>
+            <select id="clk-from" class="select">
+              <option value="0" selected>P1</option>
+              <option value="1">P2</option>
+              <option value="2">P3</option>
+            </select>
+            <span>→</span>
+            <select id="clk-to" class="select">
+              <option value="0">P1</option>
+              <option value="1" selected>P2</option>
+              <option value="2">P3</option>
+            </select>
+            <button id="clk-send" class="btn btn-sm btn-primary" type="button">Send Msg</button>
+          </div>
+
+          <div class="control-group">
+            <label for="clk-mode">Labels:</label>
+            <select id="clk-mode" class="select">
+              <option value="both" selected>Lamport &amp; Vector</option>
+              <option value="lamport">Lamport L(e)</option>
+              <option value="vector">Vector V(e)</option>
+            </select>
+          </div>
+
+          <button id="clk-sample" class="btn btn-sm" type="button">Sample Scenario</button>
+          <button id="clk-reset" class="btn btn-sm" type="button">Reset</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-stage">
+            <canvas id="clk-canvas"></canvas>
+          </div>
+          <div class="viz-readout">
+            <span class="metric"><span class="metric-label">Selected A:</span><span class="metric-value" id="clk-sel-a">Click an event</span></span>
+            <span class="metric"><span class="metric-label">Selected B:</span><span class="metric-value" id="clk-sel-b">Click another event</span></span>
+            <span class="metric"><span class="metric-label">Causal Relation:</span><span class="metric-value" id="clk-relation">—</span></span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Lamport L(a) &lt; L(b) does NOT imply a → b</summary>
+          <p>
+            Lamport clocks guarantee <code>a → b ⇒ L(a) &lt; L(b)</code>, but concurrent events <code>a ∥ b</code> can still have different scalar timestamps.
+            <strong>Vector clocks</strong> close the gap in both directions: <code>a → b ⇔ V(a) &lt; V(b)</code>.
+            In the default Sample Scenario, try clicking <code>e2</code> on P2 and <code>e5</code> on P3 to observe concurrency despite <code>L(e2) &lt; L(e5)</code>.
+          </p>
+        </details>
+      </section>
+
+      <!-- Visualization 2: Consistent Hashing Ring -->
+      <section class="viz-card" id="viz-ring">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">2. Consistent Hashing &amp; Virtual Nodes</h2>
+            <p class="viz-subtitle">
+              Inspect how keys map clockwise onto physical servers and how increasing virtual nodes balances partition skew.
+            </p>
+          </div>
+          <span class="badge">Partitioning</span>
+        </div>
+
+        <div class="viz-controls">
+          <button id="ring-add-node" class="btn btn-sm btn-primary" type="button">+ Add Server</button>
+          <button id="ring-rem-node" class="btn btn-sm" type="button">- Remove Server</button>
+
+          <div class="control-group">
+            <label for="ring-vnodes">Vnodes / Server:</label>
+            <select id="ring-vnodes" class="select">
+              <option value="1" selected>1 (No vnodes)</option>
+              <option value="3">3</option>
+              <option value="8">8</option>
+              <option value="16">16</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="ring-keys">Sample Keys:</label>
+            <select id="ring-keys" class="select">
+              <option value="24">24 keys</option>
+              <option value="60" selected>60 keys</option>
+              <option value="120">120 keys</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="ring-lookup">Lookup Key:</label>
+            <input id="ring-lookup" class="input mono" type="text" value="user:42" style="width:110px;" />
+          </div>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-split">
+            <div class="viz-stage">
+              <canvas id="ring-canvas"></canvas>
+            </div>
+            <div class="viz-stage">
+              <canvas id="ring-bars"></canvas>
+            </div>
+          </div>
+
+          <div class="viz-readout">
+            <span class="metric"><span class="metric-label">Servers:</span><span class="metric-value" id="ring-srv-count">3</span></span>
+            <span class="metric"><span class="metric-label">Ring Tokens:</span><span class="metric-value" id="ring-tok-count">3</span></span>
+            <span class="metric"><span class="metric-label">Lookup Owner:</span><span class="metric-value" id="ring-owner">—</span></span>
+            <span class="metric"><span class="metric-label">Load Spread (σ):</span><span class="metric-value" id="ring-spread">—</span></span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Why Dynamo / Cassandra use Virtual Nodes</summary>
+          <p>
+            With only 1 token per server, random hash placement produces uneven arc lengths (hotspots).
+            Assigning <code>V</code> virtual nodes per physical server interleaves segments around the 32-bit hash ring, reducing key-count variance roughly by <code>1 / √V</code> while keeping key churn minimal (<code>O(K / N)</code>) when a node joins or leaves.
+          </p>
+        </details>
+      </section>
+    </div>
+
+    <div id="course-notes"></div>
+  </div>
+
+  <script src="../js/courses-data.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/viz-kit.js"></script>
+  <script src="../js/viz/distributed-viz.js"></script>
+</body>
+</html>

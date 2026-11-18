@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS-501: Algorithms &amp; Graph Theory — Master CS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body data-root=".." data-page="algorithms">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">CS-501 · THEORY &amp; ALGORITHMS</div>
+      <h1 class="page-title">Algorithms &amp; Graph Theory</h1>
+      <p class="page-desc">
+        Explore how graph traversal strategies trade off optimality, edge weights, and heuristic guidance,
+        and trace recursive vs. breadth-first traversals on a dynamic Binary Search Tree.
+      </p>
+      <div class="topic-jump-bar">
+        <a href="#viz-pathfinding" class="badge badge-accent">1. Shortest-Path Search</a>
+        <a href="#viz-bst" class="badge">2. Binary Search Tree &amp; Traversals</a>
+        <a href="#course-notes" class="badge">Study Notes</a>
+      </div>
+    </header>
+
+    <div class="viz-stack">
+      <!-- Visualization 1: Graph Pathfinding -->
+      <section class="viz-card" id="viz-pathfinding">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">1. Shortest-Path Search: BFS, DFS, Dijkstra &amp; A*</h2>
+            <p class="viz-subtitle">
+              Drag on the grid to paint walls or weighted terrain (cost 5), then run or step through each search algorithm.
+            </p>
+          </div>
+          <span class="badge">Graph Search</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="pf-algo">Algorithm:</label>
+            <select id="pf-algo" class="select">
+              <option value="bfs">BFS (Unweighted)</option>
+              <option value="dfs">DFS (Depth-First)</option>
+              <option value="dijkstra">Dijkstra (Weighted)</option>
+              <option value="astar" selected>A* (Manhattan Heuristic)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="pf-brush">Draw:</label>
+            <select id="pf-brush" class="select">
+              <option value="wall" selected>Wall (toggle)</option>
+              <option value="weight">Rough Terrain (cost 5)</option>
+              <option value="start">Move Start (S)</option>
+              <option value="goal">Move Goal (T)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="pf-speed">Speed:</label>
+            <input id="pf-speed" type="range" min="1" max="5" step="1" value="3" />
+          </div>
+
+          <button id="pf-run" class="btn btn-sm btn-primary" type="button">Run</button>
+          <button id="pf-step" class="btn btn-sm" type="button">Step</button>
+          <button id="pf-clear-path" class="btn btn-sm" type="button">Clear Search</button>
+          <button id="pf-maze" class="btn btn-sm" type="button">Sample Obstacles</button>
+          <button id="pf-reset" class="btn btn-sm" type="button">Reset Grid</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-stage">
+            <canvas id="pf-canvas"></canvas>
+          </div>
+
+          <div class="viz-legend">
+            <span class="legend-item"><span class="legend-swatch" style="background:#16a34a"></span>Start (S)</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#dc2626"></span>Target (T)</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#3f3f46"></span>Wall</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:rgba(217,119,6,0.38)"></span>Cost 5 Terrain</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:rgba(124,58,237,0.35)"></span>Frontier</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:rgba(37,99,235,0.28)"></span>Visited</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:#f59e0b"></span>Final Path</span>
+          </div>
+
+          <div class="viz-readout">
+            <span class="metric"><span class="metric-label">Status:</span><span class="metric-value" id="pf-status">Ready</span></span>
+            <span class="metric"><span class="metric-label">Visited:</span><span class="metric-value" id="pf-visited">0</span></span>
+            <span class="metric"><span class="metric-label">Frontier:</span><span class="metric-value" id="pf-frontier">0</span></span>
+            <span class="metric"><span class="metric-label">Path Hops:</span><span class="metric-value" id="pf-hops">—</span></span>
+            <span class="metric"><span class="metric-label">Path Cost:</span><span class="metric-value" id="pf-cost">—</span></span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Why A* explores fewer nodes than Dijkstra</summary>
+          <p>
+            <strong>BFS</strong> minimizes edge count (hops) and ignores terrain weights.
+            <strong>DFS</strong> dives along one branch first and offers no shortest-path guarantee.
+            <strong>Dijkstra</strong> expands in order of true cost from start <code>g(n)</code>, guaranteeing optimal weighted paths.
+            <strong>A*</strong> prioritizes <code>f(n) = g(n) + h(n)</code>, where the admissible Manhattan heuristic <code>h(n)</code> pulls exploration toward <code>T</code> without ever overestimating remaining cost.
+          </p>
+        </details>
+      </section>
+
+      <!-- Visualization 2: Binary Search Tree & Traversals -->
+      <section class="viz-card" id="viz-bst">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">2. Binary Search Tree &amp; Traversal Orders</h2>
+            <p class="viz-subtitle">
+              Insert or remove integer keys, then animate Preorder, Inorder, Postorder, or Level-Order (BFS) traversals.
+            </p>
+          </div>
+          <span class="badge">Trees</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="bst-input">Key:</label>
+            <input id="bst-input" class="input mono" type="number" min="1" max="99" value="42" style="width:76px;" />
+          </div>
+          <button id="bst-insert" class="btn btn-sm btn-primary" type="button">Insert</button>
+          <button id="bst-delete" class="btn btn-sm" type="button">Delete</button>
+          <button id="bst-random" class="btn btn-sm" type="button">Sample Tree</button>
+          <button id="bst-clear" class="btn btn-sm" type="button">Clear</button>
+
+          <span style="width:1px;height:20px;background:var(--border-strong);margin:0 0.25rem;"></span>
+
+          <button class="btn btn-sm bst-trav-btn" data-order="inorder" type="button">Inorder</button>
+          <button class="btn btn-sm bst-trav-btn" data-order="preorder" type="button">Preorder</button>
+          <button class="btn btn-sm bst-trav-btn" data-order="postorder" type="button">Postorder</button>
+          <button class="btn btn-sm bst-trav-btn" data-order="level" type="button">Level-Order</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-stage">
+            <canvas id="bst-canvas"></canvas>
+          </div>
+          <div class="viz-readout">
+            <span class="metric"><span class="metric-label">Nodes:</span><span class="metric-value" id="bst-count">0</span></span>
+            <span class="metric"><span class="metric-label">Height:</span><span class="metric-value" id="bst-height">0</span></span>
+            <span class="metric"><span class="metric-label">Traversal:</span><span class="metric-value" id="bst-output">—</span></span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Inorder always yields sorted keys</summary>
+          <p>
+            Because every BST node satisfies <code>left &lt; node &lt; right</code>, an <strong>Inorder (L → N → R)</strong> traversal produces keys in strictly ascending sorted order.
+            <strong>Preorder</strong> captures top-down structure (useful for serializing a tree), while <strong>Postorder</strong> processes children before parents (useful for deleting or evaluating expression trees).
+          </p>
+        </details>
+      </section>
+    </div>
+
+    <div id="course-notes"></div>
+  </div>
+
+  <script src="../js/courses-data.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/viz-kit.js"></script>
+  <script src="../js/viz/algorithms-viz.js"></script>
+</body>
+</html>

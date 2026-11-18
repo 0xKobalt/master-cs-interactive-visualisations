@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSAIT 4005: Machine and Deep Learning — Master CS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body data-root=".." data-page="mdl">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">DSAIT 4005 · LECTURE 1A (WEEK1A_INTRODUCTION)</div>
+      <h1 class="page-title">Machine and Deep Learning — Lecture 1a</h1>
+      <p class="page-desc">
+        Interactive visualizations for <strong>Week 1a: Introduction &amp; Basic Classification</strong> (Jan van Gemert &amp; David M.J. Tax):
+        how class-conditional densities and priors combine via Bayes' rule into posteriors, why Bayes' error <code>ε*</code> is the fundamental floor,
+        and how asymmetric misclassification costs <code>λⱼᵢ</code> shift decision boundaries to minimize expected risk.
+      </p>
+      <div class="topic-jump-bar">
+        <a href="#viz-mdl-bayes" class="badge badge-accent">1. Bayes' Rule &amp; Posteriors</a>
+        <a href="#viz-mdl-error" class="badge">2. Classification Error &amp; Bayes Error ε*</a>
+        <a href="#viz-mdl-cost" class="badge">3. Misclassification Costs &amp; Risk</a>
+        <a href="#mdl-quiz" class="badge">4. Lecture 1a Self-Check</a>
+        <a href="#course-notes" class="badge">Study Notes</a>
+      </div>
+    </header>
+
+    <div class="viz-stack">
+      <!-- Visualization 1: Bayes' Rule & Class Posteriors (Slides 30-39, 53) -->
+      <section class="viz-card" id="viz-mdl-bayes">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">1. From Class Conditionals &amp; Priors to Posteriors (Bayes' Rule)</h2>
+            <p class="viz-subtitle">
+              Observe how multiplying <code>p(x|yᵢ)</code> by class priors <code>p(yᵢ)</code> and dividing by evidence <code>p(x)</code> forms posteriors <code>p(yᵢ|x)</code> and decision regions <code>Ω₁, Ω₂</code>. Hover or click on either plot to inspect exact values at any feature <code>x</code>.
+            </p>
+          </div>
+          <span class="badge">Slides 30–39</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="mdl-b-prior1">Prior p(y₁):</label>
+            <input id="mdl-b-prior1" type="range" min="0.10" max="0.90" step="0.01" value="0.50" />
+            <span class="mono" id="mdl-b-prior1-val">0.50</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-b-mu1">μ₁:</label>
+            <input id="mdl-b-mu1" type="range" min="-1.5" max="1.5" step="0.1" value="-0.3" />
+            <span class="mono" id="mdl-b-mu1-val">-0.3</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-b-mu2">μ₂:</label>
+            <input id="mdl-b-mu2" type="range" min="1.0" max="4.0" step="0.1" value="2.8" />
+            <span class="mono" id="mdl-b-mu2-val">2.8</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-b-sig1">σ₁:</label>
+            <input id="mdl-b-sig1" type="range" min="0.5" max="1.8" step="0.05" value="1.05" />
+            <span class="mono" id="mdl-b-sig1-val">1.05</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-b-sig2">σ₂:</label>
+            <input id="mdl-b-sig2" type="range" min="0.5" max="1.8" step="0.05" value="1.15" />
+            <span class="mono" id="mdl-b-sig2-val">1.15</span>
+          </div>
+
+          <button id="mdl-b-double-p1" class="btn btn-sm" type="button">Set p(y₁) = 2·p(y₂)</button>
+          <button id="mdl-b-reset" class="btn btn-sm" type="button">Reset</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-with-formulas">
+            <div class="viz-plots-col">
+              <div class="viz-stage">
+                <canvas id="mdl-b-joint-canvas"></canvas>
+              </div>
+              <div class="viz-stage">
+                <canvas id="mdl-b-post-canvas"></canvas>
+              </div>
+              <div class="viz-legend">
+                <span class="legend-item"><span class="legend-swatch" style="background:#2563eb"></span>Class y₁</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#dc2626"></span>Class y₂</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#16a34a"></span>Boundary p(y₁|x) = p(y₂|x)</span>
+              </div>
+              <div class="viz-readout">
+                <span class="metric"><span class="metric-label">Probe x:</span><span class="metric-value" id="mdl-b-x">1.20</span></span>
+                <span class="metric"><span class="metric-label">p(x|y₁)p(y₁):</span><span class="metric-value" id="mdl-b-j1">—</span></span>
+                <span class="metric"><span class="metric-label">p(x|y₂)p(y₂):</span><span class="metric-value" id="mdl-b-j2">—</span></span>
+                <span class="metric"><span class="metric-label">p(y₁|x):</span><span class="metric-value" id="mdl-b-post1">—</span></span>
+                <span class="metric"><span class="metric-label">p(y₂|x):</span><span class="metric-value" id="mdl-b-post2">—</span></span>
+                <span class="metric"><span class="metric-label">Decision:</span><span class="metric-value" id="mdl-b-dec">—</span></span>
+              </div>
+            </div>
+
+            <div class="viz-formulas-col">
+              <div class="formula-panel" aria-label="Bayes rule live formulas">
+                <div class="formula-grid">
+                  <div class="formula-card" data-b-focus="cond">
+                    <div class="formula-card-title">
+                      <span>1. Class-Conditional Density (hover to highlight)</span>
+                      <span>Gaussian</span>
+                    </div>
+                    <div class="formula-math">
+                      <span><i>p</i>(<i>x</i> | <i>y</i><sub><i>i</i></sub>) =</span>
+                      <span class="frac">
+                        <span class="frac-num">1</span>
+                        <span class="frac-den"><i>σ</i><sub><i>i</i></sub>√(2π)</span>
+                      </span>
+                      <span>exp(−</span>
+                      <span class="frac">
+                        <span class="frac-num">(<i>x</i> − <i>μ</i><sub><i>i</i></sub>)<sup>2</sup></span>
+                        <span class="frac-den">2<i>σ</i><sub><i>i</i></sub><sup>2</sup></span>
+                      </span>
+                      <span>)</span>
+                    </div>
+                    <div class="formula-math formula-math-sub" id="mdl-b-f-cond">—</div>
+                  </div>
+
+                  <div class="formula-card" data-b-focus="total">
+                    <div class="formula-card-title">
+                      <span>2. Law of Total Probability (Slide 37)</span>
+                      <span>Evidence</span>
+                    </div>
+                    <div class="formula-math" id="mdl-b-f-total">—</div>
+                  </div>
+
+                  <div class="formula-card" data-b-focus="bayes">
+                    <div class="formula-card-title">
+                      <span>3. Bayes' Theorem (Slide 36)</span>
+                      <span>Posterior</span>
+                    </div>
+                    <div class="formula-math" id="mdl-b-f-bayes">—</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="formula-card-title" style="margin-bottom:0.35rem;">
+                    <span>4. Equivalent Rules at Probed x (Slide 32)</span>
+                    <span id="mdl-b-f-winner" class="term-opt">—</span>
+                  </div>
+                  <div class="equiv-list">
+                    <div class="equiv-item">
+                      <div class="formula-math" id="mdl-b-eq-1">—</div>
+                    </div>
+                    <div class="equiv-item">
+                      <div class="formula-math" id="mdl-b-eq-2">—</div>
+                    </div>
+                    <div class="equiv-item">
+                      <div class="formula-math" id="mdl-b-eq-3">—</div>
+                    </div>
+                    <div class="equiv-item">
+                      <div class="formula-math" id="mdl-b-eq-4">—</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Effect of changing class priors (Slide 53 Question)</summary>
+          <p>
+            Click <code>Set p(y₁) = 2·p(y₂)</code> (<code>p(y₁) ≈ 0.67, p(y₂) ≈ 0.33</code>). Multiplying <code>p(x|y₁)</code> by a larger prior raises the blue curve and lowers the red curve,
+            shifting the green decision boundary <code>p(y₁|x) = p(y₂|x)</code> to the right so region <code>Ω₁</code> expands.
+            Notice that <code>p(x) = p(x|y₁)p(y₁) + p(x|y₂)p(y₂)</code> acts purely as the normalizing denominator ensuring <code>p(y₁|x) + p(y₂|x) = 1</code>.
+          </p>
+        </details>
+      </section>
+
+      <!-- Visualization 2: Classification Error & Bayes' Error (Slides 40-44) -->
+      <section class="viz-card" id="viz-mdl-error">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">2. Classification Error &amp; Bayes' Error (ε*)</h2>
+            <p class="viz-subtitle">
+              Drag the green threshold line on the left plot (or use the slider) to see how the shaded yellow error regions compare to the irreducible Bayes' error <code>ε*</code>.
+            </p>
+          </div>
+          <span class="badge">Slides 40–44</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="mdl-e-thresh">Threshold t:</label>
+            <input id="mdl-e-thresh" type="range" min="-2.0" max="5.0" step="0.02" value="0.65" />
+            <span class="mono" id="mdl-e-thresh-val">0.65</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-e-sep">Class Separation (μ₂ − μ₁):</label>
+            <input id="mdl-e-sep" type="range" min="0.8" max="4.5" step="0.1" value="2.8" />
+            <span class="mono" id="mdl-e-sep-val">2.8</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-e-prior1">Prior p(y₁):</label>
+            <input id="mdl-e-prior1" type="range" min="0.20" max="0.80" step="0.02" value="0.55" />
+            <span class="mono" id="mdl-e-prior1-val">0.55</span>
+          </div>
+
+          <button id="mdl-e-snap" class="btn btn-sm btn-primary" type="button">Snap to Bayes Optimal</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-with-formulas">
+            <div class="viz-plots-col">
+              <div class="viz-stage">
+                <canvas id="mdl-e-dist-canvas"></canvas>
+              </div>
+              <div class="viz-stage">
+                <canvas id="mdl-e-curve-canvas"></canvas>
+              </div>
+              <div class="viz-legend">
+                <span class="legend-item"><span class="legend-swatch" style="background:rgba(245,158,11,0.55)"></span>Misclassification area</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#16a34a"></span>Chosen boundary t</span>
+              </div>
+              <div class="viz-readout">
+                <span class="metric"><span class="metric-label">Current Error p(error):</span><span class="metric-value" id="mdl-e-cur">—</span></span>
+                <span class="metric"><span class="metric-label">Bayes Error ε*:</span><span class="metric-value" id="mdl-e-bayes">—</span></span>
+                <span class="metric"><span class="metric-label">Excess:</span><span class="metric-value" id="mdl-e-excess">—</span></span>
+                <span class="metric"><span class="metric-label">P(y₁→y₂) / P(y₂→y₁):</span><span class="metric-value" id="mdl-e-split">—</span></span>
+              </div>
+            </div>
+
+            <div class="viz-formulas-col">
+              <div class="formula-panel" aria-label="Classification error and Bayes error formulas">
+                <div class="formula-grid">
+                  <div class="formula-card" data-e-focus="error-split">
+                    <div class="formula-card-title">
+                      <span>1. Total Classification Error (Slides 41–42)</span>
+                      <span>Shaded Area</span>
+                    </div>
+                    <div class="formula-math" id="mdl-e-f-err">—</div>
+                  </div>
+
+                  <div class="formula-card" data-e-focus="bayes-opt">
+                    <div class="formula-card-title">
+                      <span>2. Bayes' Error ε* &amp; Optimal t* (Slide 43)</span>
+                      <span>Lower Bound</span>
+                    </div>
+                    <div class="formula-math" id="mdl-e-f-opt">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Why Bayes' error ε* cannot be beaten by a better classifier</summary>
+          <p>
+            For any threshold <code>t</code>, total error is the yellow area where the chosen class has the smaller curve plus any extra tail you include by moving away from the intersection.
+            Clicking <strong>Snap to Bayes Optimal</strong> places <code>t</code> right at <code>p(x|y₁)p(y₁) = p(x|y₂)p(y₂)</code>, reaching <code>ε*</code>.
+            Notice that moving <code>t</code> never reduces <code>ε*</code>—only changing the underlying distribution (like increasing class separation <code>μ₂ − μ₁</code>) lowers <code>ε*</code>.
+          </p>
+        </details>
+      </section>
+
+      <!-- Visualization 3: Misclassification Costs & Minimum Risk (Slides 45-52, 54) -->
+      <section class="viz-card" id="viz-mdl-cost">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">3. Misclassification Costs (λⱼᵢ) &amp; Minimum Total Risk</h2>
+            <p class="viz-subtitle">
+              When errors carry unequal costs <code>λⱼᵢ</code> (assigning true class <code>yⱼ</code> to <code>yᵢ</code>), minimum risk simply rescales the posteriors: compare <code>λ₂₁·p(y₂|x)</code> against <code>λ₁₂·p(y₁|x)</code>. Hover or click on the plot to inspect conditional risks at any <code>x</code>.
+            </p>
+          </div>
+          <span class="badge">Slides 45–52, 54</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="mdl-c-preset">Slide Example:</label>
+            <select id="mdl-c-preset" class="select">
+              <option value="medical" selected>Medical: Healthy vs Ill (λ₁₂=10, λ₂₁=100)</option>
+              <option value="equal">Equal 0–1 Loss (λ₁₂=1, λ₂₁=1)</option>
+              <option value="fruit">Fruit Matrix Slide 52 (λ₁₂=1, λ₂₁=9)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-c-l12">λ₁₂ (y₁ → y₂):</label>
+            <input id="mdl-c-l12" type="range" min="1" max="100" step="1" value="10" />
+            <span class="mono" id="mdl-c-l12-val">10</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-c-l21">λ₂₁ (y₂ → y₁):</label>
+            <input id="mdl-c-l21" type="range" min="1" max="100" step="1" value="100" />
+            <span class="mono" id="mdl-c-l21-val">100</span>
+          </div>
+
+          <div class="control-group">
+            <label for="mdl-c-prior1">Prior p(y₁):</label>
+            <input id="mdl-c-prior1" type="range" min="0.20" max="0.90" step="0.02" value="0.70" />
+            <span class="mono" id="mdl-c-prior1-val">0.70</span>
+          </div>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-with-formulas">
+            <div class="viz-plots-col">
+              <div class="viz-stage">
+                <canvas id="mdl-c-risk-canvas"></canvas>
+              </div>
+              <div class="viz-legend">
+                <span class="legend-item"><span class="legend-swatch" style="background:#2563eb"></span>l²(x) = λ₁₂·p(y₁|x)</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#dc2626"></span>l¹(x) = λ₂₁·p(y₂|x)</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#16a34a"></span>Min-Risk Boundary</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#71717a"></span>Dashed: 0–1 Boundary</span>
+              </div>
+              <div class="viz-readout">
+                <span class="metric"><span class="metric-label">Probe x:</span><span class="metric-value" id="mdl-c-x">1.20</span></span>
+                <span class="metric"><span class="metric-label">Min-Risk t:</span><span class="metric-value" id="mdl-c-topt">—</span></span>
+                <span class="metric"><span class="metric-label">0–1 t:</span><span class="metric-value" id="mdl-c-t01">—</span></span>
+                <span class="metric"><span class="metric-label">r*:</span><span class="metric-value" id="mdl-c-rmin">—</span></span>
+                <span class="metric"><span class="metric-label">0–1 Risk:</span><span class="metric-value" id="mdl-c-r01">—</span></span>
+              </div>
+            </div>
+
+            <div class="viz-formulas-col">
+              <table class="data-table" aria-label="Cost Matrix">
+                <thead>
+                  <tr>
+                    <th>True \ Predicted</th>
+                    <th id="mdl-c-col1">y₁ (Healthy)</th>
+                    <th id="mdl-c-col2">y₂ (Ill)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th id="mdl-c-row1">y₁ (Healthy)</th>
+                    <td>λ₁₁ = 0</td>
+                    <td id="mdl-c-cell12">λ₁₂ = 10</td>
+                  </tr>
+                  <tr>
+                    <th id="mdl-c-row2">y₂ (Ill)</th>
+                    <td id="mdl-c-cell21">λ₂₁ = 100</td>
+                    <td>λ₂₂ = 0</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="callout" style="margin:0;padding:0.55rem 0.75rem;font-size:0.8rem;">
+                <h4 style="font-size:0.82rem;margin-bottom:0.2rem;">Decision Rule (Slide 50)</h4>
+                <p id="mdl-c-rule-text" class="mono" style="font-size:0.76rem;"></p>
+              </div>
+
+              <div class="formula-panel" aria-label="Conditional risk and total risk formulas">
+                <div class="formula-grid">
+                  <div class="formula-card" data-c-focus="cond-risk">
+                    <div class="formula-card-title">
+                      <span>1. Conditional Risk at x (Slides 47, 49)</span>
+                      <span>Per-Point</span>
+                    </div>
+                    <div class="formula-math" id="mdl-c-f-cond">—</div>
+                  </div>
+
+                  <div class="formula-card" data-c-focus="total-risk">
+                    <div class="formula-card-title">
+                      <span>2. Total Expected Risk &amp; Boundary Shift (Slides 48, 50)</span>
+                      <span>Integral</span>
+                    </div>
+                    <div class="formula-math" id="mdl-c-f-total">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Rescaling posteriors shifts the safe zone</summary>
+          <p>
+            When missing an illness (<code>λ₂₁ = 100</code>) is 10× costlier than a false alarm (<code>λ₁₂ = 10</code>),
+            we only need <code>p(ill|x) &gt; 10/110 ≈ 9.1%</code> before predicting <strong>Ill</strong> becomes the lower-risk decision!
+            As Slide 54 summarizes: you do not need a completely new model—just rescale the class posteriors by the misclassification costs.
+          </p>
+        </details>
+      </section>
+
+      <!-- Section 4: Slide 53 Self-Check Questions -->
+      <section class="viz-card" id="mdl-quiz">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">4. Slide 53 Check: "Questions for you..."</h2>
+            <p class="viz-subtitle">Test your intuition on the reflection questions from the end of Lecture 1a before revealing each answer.</p>
+          </div>
+          <span class="badge">Slide 53</span>
+        </div>
+        <div class="viz-body" style="display:flex;flex-direction:column;gap:0.75rem;">
+          <details class="viz-notes" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.7rem 0.95rem;">
+            <summary>Q1: True or not — when you can estimate the posterior probabilities better, you can decrease the Bayes' error.</summary>
+            <p>
+              <strong>False.</strong> Bayes' error <code>ε*</code> is a property of the true underlying data distribution <code>p(x, y)</code> (class overlap), not of your estimator. Better posterior estimates move your classifier's error <em>down toward</em> <code>ε*</code>, never below it.
+            </p>
+          </details>
+          <details class="viz-notes" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.7rem 0.95rem;">
+            <summary>Q2: Will an empirical error estimate measured on the training set typically be larger, equal, or smaller than Bayes' error?</summary>
+            <p>
+              On the <strong>training set</strong>, an overfitted model can appear smaller than <code>ε*</code> (recall the darkened cat/green bean example on Slide 17!). On an <strong>independent test set</strong> (Slide 18), any real classifier's expected error is always <code>≥ ε*</code> because <code>ε*</code> is the theoretical minimum over <code>p(x, y)</code>.
+            </p>
+          </details>
+          <details class="viz-notes" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.7rem 0.95rem;">
+            <summary>Q3: What happens when p(y₁) = 2·p(y₂)?</summary>
+            <p>
+              Since <code>p(y₁) + p(y₂) = 1</code>, this means <code>p(y₁) = 2/3</code> and <code>p(y₂) = 1/3</code>. The decision rule <code>p(x|y₁)p(y₁) &gt; p(x|y₂)p(y₂)</code> becomes <code>2·p(x|y₁) &gt; p(x|y₂)</code>, shifting the boundary toward class 2 and expanding region <code>Ω₁</code>. Try clicking <code>Set p(y₁) = 2·p(y₂)</code> in Visualization 1 above!
+            </p>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <div id="course-notes"></div>
+  </div>
+
+  <script src="../js/courses-data.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/viz-kit.js"></script>
+  <script src="../js/viz/mdl-viz.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS-520: Machine Learning — Master CS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body data-root=".." data-page="machine-learning">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">CS-520 · ARTIFICIAL INTELLIGENCE &amp; ML</div>
+      <h1 class="page-title">Machine Learning</h1>
+      <p class="page-desc">
+        Build intuition for gradient descent step sizes, L2 regularization, polynomial model capacity,
+        and iterative expectation-maximization style convergence in K-Means clustering.
+      </p>
+      <div class="topic-jump-bar">
+        <a href="#viz-gd" class="badge badge-accent">1. Gradient Descent &amp; Regression</a>
+        <a href="#viz-kmeans" class="badge">2. K-Means Clustering</a>
+        <a href="#course-notes" class="badge">Study Notes</a>
+      </div>
+    </header>
+
+    <div class="viz-stack">
+      <!-- Visualization 1: Gradient Descent -->
+      <section class="viz-card" id="viz-gd">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">1. Gradient Descent &amp; L2 Regularization Playground</h2>
+            <p class="viz-subtitle">
+              Click on the left plot to add points. Adjust learning rate <code>η</code> and regularization <code>λ</code> to observe convergence vs. oscillation.
+            </p>
+          </div>
+          <span class="badge">Optimization</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="gd-deg">Model:</label>
+            <select id="gd-deg" class="select">
+              <option value="1">Linear (deg 1)</option>
+              <option value="2" selected>Quadratic (deg 2)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="gd-preset">Dataset:</label>
+            <select id="gd-preset" class="select">
+              <option value="quadratic" selected>Curved + Noise</option>
+              <option value="linear">Linear Trend</option>
+              <option value="outliers">With Outliers</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="gd-lr">η (LR):</label>
+            <input id="gd-lr" type="range" min="0.02" max="1.2" step="0.02" value="0.16" />
+            <span class="mono" id="gd-lr-val">0.16</span>
+          </div>
+
+          <div class="control-group">
+            <label for="gd-l2">λ (L2):</label>
+            <input id="gd-l2" type="range" min="0" max="0.2" step="0.01" value="0" />
+            <span class="mono" id="gd-l2-val">0.00</span>
+          </div>
+
+          <button id="gd-play" class="btn btn-sm btn-primary" type="button">Play</button>
+          <button id="gd-step" class="btn btn-sm" type="button">Step</button>
+          <button id="gd-reset-w" class="btn btn-sm" type="button">Reset Weights</button>
+          <button id="gd-clear" class="btn btn-sm" type="button">Clear Points</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-split">
+            <div class="viz-stage">
+              <canvas id="gd-plot"></canvas>
+            </div>
+            <div class="viz-stage">
+              <canvas id="gd-loss"></canvas>
+            </div>
+          </div>
+
+          <div class="viz-readout">
+            <span class="metric"><span class="metric-label">Step:</span><span class="metric-value" id="gd-epoch">0</span></span>
+            <span class="metric"><span class="metric-label">Loss (MSE+L2):</span><span class="metric-value" id="gd-mse">—</span></span>
+            <span class="metric"><span class="metric-label">‖∇L‖:</span><span class="metric-value" id="gd-grad">—</span></span>
+            <span class="metric"><span class="metric-label">Model:</span><span class="metric-value" id="gd-eq">y = 0</span></span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Why large learning rates overshoot &amp; L2 shrinks weights</summary>
+          <p>
+            For quadratic loss surfaces, stability requires <code>η &lt; 2 / L_smooth</code> where <code>L_smooth</code> is the largest Hessian eigenvalue.
+            Try sliding <code>η</code> above <code>1.0</code> on the Quadratic preset to trigger divergence!
+            Adding <code>λ(w₁² + w₂²)</code> penalizes large curvature weights and rotates the minimum toward flatter curves.
+          </p>
+        </details>
+      </section>
+
+      <!-- Visualization 2: K-Means Clustering -->
+      <section class="viz-card" id="viz-kmeans">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">2. K-Means Clustering &amp; Voronoi Partitioning</h2>
+            <p class="viz-subtitle">
+              Click on the canvas to add data points, then alternate between Assignment (E-step) and Centroid Update (M-step).
+            </p>
+          </div>
+          <span class="badge">Unsupervised</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="km-k">Clusters (K):</label>
+            <select id="km-k" class="select">
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="km-preset">Preset:</label>
+            <select id="km-preset" class="select">
+              <option value="blobs" selected>3 Clusters</option>
+              <option value="bands">4 Corner Groups</option>
+              <option value="uniform">Uniform Random</option>
+            </select>
+          </div>
+
+          <button id="km-init" class="btn btn-sm" type="button">Init Centroids</button>
+          <button id="km-step" class="btn btn-sm btn-primary" type="button">Next Half-Step</button>
+          <button id="km-run" class="btn btn-sm" type="button">Auto Converge</button>
+          <button id="km-clear" class="btn btn-sm" type="button">Clear Points</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-stage">
+            <canvas id="km-canvas"></canvas>
+          </div>
+
+          <div class="viz-readout">
+            <span class="metric"><span class="metric-label">Iteration:</span><span class="metric-value" id="km-iter">0</span></span>
+            <span class="metric"><span class="metric-label">Next Action:</span><span class="metric-value" id="km-phase">Assign Points</span></span>
+            <span class="metric"><span class="metric-label">Inertia (SSE):</span><span class="metric-value" id="km-sse">—</span></span>
+            <span class="metric"><span class="metric-label">Points:</span><span class="metric-value" id="km-count">0</span></span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Monotonic decrease to a local minimum</summary>
+          <p>
+            Both K-Means steps strictly non-increase the Within-Cluster Sum of Squares (<code>SSE</code>):
+            assigning points to the nearest centroid minimizes distance for fixed centers, and moving each centroid to the arithmetic mean minimizes squared distance for fixed assignments.
+            Try clicking <code>Init Centroids</code> multiple times to see how bad initial seeds can trap K-Means in suboptimal local minima.
+          </p>
+        </details>
+      </section>
+    </div>
+
+    <div id="course-notes"></div>
+  </div>
+
+  <script src="../js/courses-data.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/viz-kit.js"></script>
+  <script src="../js/viz/ml-viz.js"></script>
+</body>
+</html>

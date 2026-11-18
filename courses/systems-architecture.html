@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS-510: Computer Architecture &amp; Memory — Master CS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body data-root=".." data-page="systems-architecture">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">CS-510 · SYSTEMS &amp; HARDWARE</div>
+      <h1 class="page-title">Computer Architecture &amp; Memory</h1>
+      <p class="page-desc">
+        Step through CPU cache tag/index/offset decoding under different associativities and replacement policies,
+        and manipulate raw IEEE 754 single-precision floating-point bits directly.
+      </p>
+      <div class="topic-jump-bar">
+        <a href="#viz-cache" class="badge badge-accent">1. CPU Cache Simulator</a>
+        <a href="#viz-ieee" class="badge">2. IEEE 754 Float Bit Explorer</a>
+        <a href="#course-notes" class="badge">Study Notes</a>
+      </div>
+    </header>
+
+    <div class="viz-stack">
+      <!-- Visualization 1: CPU Cache Simulator -->
+      <section class="viz-card" id="viz-cache">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">1. CPU Cache Simulator (16-Bit Addresses)</h2>
+            <p class="viz-subtitle">
+              Watch how address bits split into <code>Tag | Index | Offset</code> and how 2-way associativity eliminates ping-pong conflict misses.
+            </p>
+          </div>
+          <span class="badge">Memory Hierarchy</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="cache-lines">Lines:</label>
+            <select id="cache-lines" class="select">
+              <option value="4">4 lines</option>
+              <option value="8" selected>8 lines</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="cache-assoc">Associativity:</label>
+            <select id="cache-assoc" class="select">
+              <option value="1" selected>Direct-Mapped (1-way)</option>
+              <option value="2">2-Way Set Assoc</option>
+              <option value="4">4-Way Set Assoc</option>
+              <option value="full">Fully Associative</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="cache-block">Block Size:</label>
+            <select id="cache-block" class="select">
+              <option value="4" selected>4 Bytes (2 offset bits)</option>
+              <option value="8">8 Bytes (3 offset bits)</option>
+              <option value="16">16 Bytes (4 offset bits)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="cache-policy">Policy:</label>
+            <select id="cache-policy" class="select">
+              <option value="lru" selected>LRU</option>
+              <option value="fifo">FIFO</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="cache-preset">Trace:</label>
+            <select id="cache-preset" class="select">
+              <option value="thrash" selected>Conflict Thrashing (0x00, 0x20...)</option>
+              <option value="spatial">Sequential Stride (4B steps)</option>
+              <option value="loop">Working Set Loop</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="viz-controls" style="border-top:0;">
+          <div class="control-group" style="flex:1;min-width:220px;">
+            <label for="cache-trace">Addresses:</label>
+            <input id="cache-trace" class="input mono" type="text" style="width:100%;" value="0x00, 0x20, 0x00, 0x20, 0x04, 0x24, 0x00, 0x20" />
+          </div>
+          <button id="cache-step" class="btn btn-sm btn-primary" type="button">Step Next</button>
+          <button id="cache-run" class="btn btn-sm" type="button">Run All</button>
+          <button id="cache-reset" class="btn btn-sm" type="button">Reset</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-readout" style="margin-top:0;margin-bottom:0.85rem;">
+            <span class="metric"><span class="metric-label">Progress:</span><span class="metric-value" id="cache-prog">0 / 8</span></span>
+            <span class="metric"><span class="metric-label">Last Access:</span><span class="metric-value" id="cache-last">—</span></span>
+            <span class="metric"><span class="metric-label">Bit Split:</span><span class="metric-value" id="cache-split">—</span></span>
+            <span class="metric"><span class="metric-label">Hits / Misses:</span><span class="metric-value" id="cache-hm">0 / 0</span></span>
+            <span class="metric"><span class="metric-label">Hit Rate:</span><span class="metric-value" id="cache-rate">—</span></span>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="cache-table">
+              <thead>
+                <tr>
+                  <th>Set</th>
+                  <th>Way</th>
+                  <th>Valid</th>
+                  <th>Tag</th>
+                  <th>Byte Range</th>
+                  <th>Order</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="cache-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Compulsory vs. Conflict Misses</summary>
+          <p>
+            On the default <strong>Conflict Thrashing</strong> trace (<code>0x00, 0x20, ...</code>) with 8 lines × 4B = 32B total capacity,
+            both <code>0x00</code> and <code>0x20</code> map to <code>Set 0</code> in a Direct-Mapped cache, causing repeated evictions (0% hit rate after initial loads).
+            Switch Associativity to <strong>2-Way Set Assoc</strong> and re-run: both tags coexist in Set 0, turning repeats into hits!
+          </p>
+        </details>
+      </section>
+
+      <!-- Visualization 2: IEEE 754 32-bit Float Explorer -->
+      <section class="viz-card" id="viz-ieee">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">2. IEEE 754 Single-Precision (32-Bit) Bit Explorer</h2>
+            <p class="viz-subtitle">
+              Click any individual bit below to flip it, or enter a decimal number to see exact hardware encoding.
+            </p>
+          </div>
+          <span class="badge">Representation</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="fp-input">Decimal Input:</label>
+            <input id="fp-input" class="input mono" type="text" value="0.1" style="width:140px;" />
+          </div>
+          <button class="btn btn-sm fp-preset" data-val="0.1" type="button">0.1</button>
+          <button class="btn btn-sm fp-preset" data-val="-3.75" type="button">-3.75</button>
+          <button class="btn btn-sm fp-preset" data-val="1e-40" type="button">1e-40 (Subnormal)</button>
+          <button class="btn btn-sm fp-preset" data-val="Infinity" type="button">+Inf</button>
+          <button class="btn btn-sm fp-preset" data-val="NaN" type="button">NaN</button>
+          <button class="btn btn-sm fp-preset" data-val="-0" type="button">-0</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="bit-row" id="fp-bits"></div>
+
+          <div class="viz-readout" style="margin-top:1rem;">
+            <span class="metric"><span class="metric-label">Category:</span><span class="metric-value" id="fp-cat">—</span></span>
+            <span class="metric"><span class="metric-label">Hex:</span><span class="metric-value" id="fp-hex">—</span></span>
+            <span class="metric"><span class="metric-label">Sign:</span><span class="metric-value" id="fp-sign">—</span></span>
+            <span class="metric"><span class="metric-label">Exponent (E − 127):</span><span class="metric-value" id="fp-exp">—</span></span>
+            <span class="metric"><span class="metric-label">Exact Stored Value:</span><span class="metric-value" id="fp-exact">—</span></span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway: Why 0.1 cannot be represented exactly in binary</summary>
+          <p>
+            In base 2, <code>1/10</code> is a repeating fraction <code>0.0001100110011...₂</code>.
+            Rounding to 23 mantissa bits produces <code>0.10000000149011612</code> in float32.
+            When all 8 exponent bits are <code>0</code> (<code>E = 0</code>) and mantissa is non-zero, IEEE 754 switches to <strong>Subnormal</strong> mode (no implicit leading 1, fixed exponent <code>2⁻¹²⁶</code>) for gradual underflow toward zero.
+          </p>
+        </details>
+      </section>
+    </div>
+
+    <div id="course-notes"></div>
+  </div>
+
+  <script src="../js/courses-data.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/viz-kit.js"></script>
+  <script src="../js/viz/systems-viz.js"></script>
+</body>
+</html>

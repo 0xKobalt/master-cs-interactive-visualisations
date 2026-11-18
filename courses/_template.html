@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course Template — Master CS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<!--
+  HOW TO USE THIS TEMPLATE:
+  1. Copy this file to courses/your-course.html
+  2. Change data-page="template" below to match your course id (e.g. data-page="cryptography")
+  3. Add an entry for your course in ../js/courses-data.js
+  4. Replace the example .viz-card below with your own visualizations!
+-->
+<body data-root=".." data-page="template">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">CS-5XX · COURSE TEMPLATE</div>
+      <h1 class="page-title">Your New Course Title</h1>
+      <p class="page-desc">
+        Duplicate <code>courses/_template.html</code> to create a dedicated page for any new course.
+        Each visualization lives inside its own self-contained <code>.viz-card</code> block.
+      </p>
+      <div class="topic-jump-bar">
+        <a href="#viz-example" class="badge badge-accent">1. Starter Visualization</a>
+        <a href="#course-notes" class="badge">Study Notes</a>
+      </div>
+    </header>
+
+    <div class="viz-stack">
+      <!-- ================================================================
+           VISUALIZATION SLOT (Copy this <section class="viz-card"> to add more!)
+           ================================================================ -->
+      <section class="viz-card" id="viz-example">
+        <div class="viz-header">
+          <div>
+            <h2 class="viz-title">Minimal Visualization Starter</h2>
+            <p class="viz-subtitle">
+              Shows how to connect controls, a HiDPI Canvas via <code>VizKit</code>, and live numeric readouts.
+            </p>
+          </div>
+          <span class="badge">Starter Snippet</span>
+        </div>
+
+        <div class="viz-controls">
+          <div class="control-group">
+            <label for="tmpl-freq">Frequency (k):</label>
+            <input id="tmpl-freq" type="range" min="1" max="8" step="0.5" value="2" />
+            <span class="mono" id="tmpl-freq-val">2.0</span>
+          </div>
+          <div class="control-group">
+            <label for="tmpl-amp">Amplitude (A):</label>
+            <input id="tmpl-amp" type="range" min="10" max="90" step="5" value="60" />
+            <span class="mono" id="tmpl-amp-val">60</span>
+          </div>
+          <button id="tmpl-reset" class="btn btn-sm" type="button">Reset</button>
+        </div>
+
+        <div class="viz-body">
+          <div class="viz-stage">
+            <canvas id="tmpl-canvas"></canvas>
+          </div>
+          <div class="viz-readout">
+            <span class="metric">
+              <span class="metric-label">Formula:</span>
+              <span class="metric-value" id="tmpl-formula">y = 60 · sin(2.0x)</span>
+            </span>
+          </div>
+        </div>
+
+        <details class="viz-notes">
+          <summary>Key Takeaway / Study Notes</summary>
+          <p>
+            Use this collapsible panel under any visualization to capture definitions, proofs, or edge cases you want to remember for exams.
+          </p>
+        </details>
+      </section>
+    </div>
+
+    <!-- Optional persistent per-page study notes saved in browser localStorage -->
+    <div id="course-notes"></div>
+  </div>
+
+  <script src="../js/courses-data.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/viz-kit.js"></script>
+  <script>
+    (function () {
+      const canvas = document.getElementById("tmpl-canvas");
+      const freqInput = document.getElementById("tmpl-freq");
+      const ampInput = document.getElementById("tmpl-amp");
+      const freqVal = document.getElementById("tmpl-freq-val");
+      const ampVal = document.getElementById("tmpl-amp-val");
+      const formulaEl = document.getElementById("tmpl-formula");
+      const resetBtn = document.getElementById("tmpl-reset");
+
+      const W = 800;
+      const H = 220;
+
+      function draw() {
+        const { ctx } = VizKit.setupCanvas(canvas, W, H);
+        const colors = VizKit.getThemeColors();
+        const k = parseFloat(freqInput.value);
+        const A = parseFloat(ampInput.value);
+
+        freqVal.textContent = k.toFixed(1);
+        ampVal.textContent = A.toFixed(0);
+        formulaEl.textContent = `y = ${A} · sin(${k.toFixed(1)}x)`;
+
+        ctx.fillStyle = colors.bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // Center axis
+        ctx.strokeStyle = colors.borderStrong;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, H / 2);
+        ctx.lineTo(W, H / 2);
+        ctx.stroke();
+
+        // Curve
+        ctx.strokeStyle = colors.accent;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        for (let px = 0; px <= W; px += 2) {
+          const t = (px / W) * Math.PI * 2;
+          const y = H / 2 - A * Math.sin(k * t);
+          if (px === 0) ctx.moveTo(px, y);
+          else ctx.lineTo(px, y);
+        }
+        ctx.stroke();
+      }
+
+      freqInput.addEventListener("input", draw);
+      ampInput.addEventListener("input", draw);
+      resetBtn.addEventListener("click", () => {
+        freqInput.value = "2";
+        ampInput.value = "60";
+        draw();
+      });
+      VizKit.onThemeChange(draw);
+      draw();
+    })();
+  </script>
+</body>
+</html>

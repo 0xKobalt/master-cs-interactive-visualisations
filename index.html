@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master CS — Interactive Study Hub</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='monospace' font-size='14' font-weight='bold'%3ECS%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body data-root="." data-page="home">
+  <div id="page-content">
+    <header class="page-header">
+      <div class="page-kicker">MASTER'S COMPUTER SCIENCE NOTEBOOK</div>
+      <h1 class="page-title">Courses &amp; Interactive Visualizations</h1>
+      <p class="page-desc">
+        Each course has its own dedicated page for compact, interactive visualizations and personal study notes.
+        Open any course below to explore, or follow the guide to drop in a new course or widget in under a minute.
+      </p>
+      <div class="topic-jump-bar">
+        <span class="badge badge-accent" id="hub-stats">Loading courses...</span>
+        <a href="guide.html" class="badge">How to add courses &amp; visualizations →</a>
+      </div>
+    </header>
+
+    <section class="filter-bar" aria-label="Course filters">
+      <div class="filter-pills" id="category-filters"></div>
+      <input
+        id="course-search"
+        type="search"
+        class="input search-input"
+        placeholder="Filter by course, code, or topic..."
+        aria-label="Filter courses"
+      />
+    </section>
+
+    <section class="course-grid" id="course-grid" aria-label="Course list"></section>
+
+    <div class="callout">
+      <h4>Built to stay simple and extensible</h4>
+      <p>
+        No build tools, npm install, or server required — double-click <code>index.html</code> anytime.
+        To add a course, copy <a href="courses/_template.html"><code>courses/_template.html</code></a> and register it in
+        <code>js/courses-data.js</code>. See the <a href="guide.html">Developer &amp; Study Guide</a> for copy-paste visualization snippets.
+      </p>
+    </div>
+  </div>
+
+  <script src="js/courses-data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>
